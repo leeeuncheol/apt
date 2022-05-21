@@ -17,7 +17,7 @@ code = code [code['is_exist'] == '존재']
 code['code'] = code['code'].apply(str) 
 code['substr'] = code['code'].str[:5]
 #지역 필터
-filter = code['name'].str.contains("울산광역시")
+filter = code['name'].str.contains("울산광역시") 
 subset_df = code[filter]
 ## 중복제거
 subset_df = subset_df.drop_duplicates(['substr'])
