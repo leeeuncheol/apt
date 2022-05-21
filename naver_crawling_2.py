@@ -17,8 +17,6 @@ res = pd.DataFrame()
 #단지 LIST
 aptArray = ['16248','105026','132862','6053','111348']
 
-#변경사항? 
-
 for i in range(0, len(aptArray)):
 
     # 네이버 한페이지에 20개 밖에 로드 안시킴. 넉넉히 20페이지 까지 탐색하고 결과값 없으면 break
