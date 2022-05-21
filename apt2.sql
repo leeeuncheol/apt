@@ -1,31 +1,31 @@
-use crawl_data;
-CREATE TABLE apt2 (
- idx        INT NOT NULL AUTO_INCREMENT,
- 거래금액     int,
- 거래유형    VARCHAR(20),
- 건축년도   int,
- 년    int,  
- 법정동  VARCHAR(20),
- 아파트 VARCHAR(100),
- 월    int,
- 일     int,
- 전용면적    decimal,
- 중개사소재지    VARCHAR(20),
- 지번    VARCHAR(20),
- 지역코드    VARCHAR(20),
- 층    int,
- 해제사유발생일    VARCHAR(20),
- 해제여부    VARCHAR(20),
- 거래금액범위    VARCHAR(20),
- 시    VARCHAR(20),
- 구    VARCHAR(20),
-  PRIMARY KEY(idx)
-) ;
+-- use crawl_data;
+-- CREATE TABLE apt2 (
+--  idx        INT NOT NULL AUTO_INCREMENT,
+--  거래금액     int,
+--  거래유형    VARCHAR(20),
+--  건축년도   int,
+--  년    int,  
+--  법정동  VARCHAR(20),
+--  아파트 VARCHAR(100),
+--  월    int,
+--  일     int,
+--  전용면적    decimal,
+--  중개사소재지    VARCHAR(20),
+--  지번    VARCHAR(20),
+--  지역코드    VARCHAR(20),
+--  층    int,
+--  해제사유발생일    VARCHAR(20),
+--  해제여부    VARCHAR(20),
+--  거래금액범위    VARCHAR(20),
+--  시    VARCHAR(20),
+--  구    VARCHAR(20),
+--   PRIMARY KEY(idx)
+-- ) ;
 
 select * from apt2;
 
 
-update crawl_data.apt 
+update crawl_data.apt2 
 set 거래금액범위 = 
 	 case 
 		when (거래금액 between 0 and 9999) then '1억 미만'
@@ -49,10 +49,10 @@ set 거래금액범위 =
 where 거래금액범위 is null ;   
 
 
-update crawl_data.apt 
+update crawl_data.apt2 
 	set 시 = substring_index(지역코드, ' ', 1);
     
-update crawl_data.apt 
+update crawl_data.apt2 
 	set 구 = substring_index(지역코드, ' ', -1);
 
 

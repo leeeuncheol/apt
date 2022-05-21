@@ -58,6 +58,9 @@ for i in range(0, len(aptArray)):
 finalRes = pd.DataFrame(res[['atclNm','bildNm', 'flrInfo', 'spc2','tradTpNm', 'prcInfo','atclNo']])
 finalRes['date'] = dt.datetime.now().date()
 finalRes['date'] = pd.to_datetime(finalRes['date'])
+#DB 또는 POWER BI에서 처리
+# finalRes['atclNo'] = "https://m.land.naver.com/article/info/" + finalRes['atclNo']
+
 
 # 면적, 가격은 Numeric으로 변환
 finalRes['spc2'] = pd.to_numeric(finalRes['spc2'])
