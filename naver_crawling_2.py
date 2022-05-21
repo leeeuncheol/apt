@@ -55,7 +55,7 @@ for i in range(0, len(aptArray)):
 
 #필요한 Column만 골라 씀
 # sortRes = res[['atclNm','bildNm', 'flrInfo', 'spc2','tradTpNm', 'prcInfo']].sort_values(by=['prcInfo'],ascending=False)
-finalRes = pd.DataFrame(res[['atclNm','bildNm', 'flrInfo', 'spc2','tradTpNm', 'prcInfo']])
+finalRes = pd.DataFrame(res[['atclNm','bildNm', 'flrInfo', 'spc2','tradTpNm', 'prcInfo','atclNo']])
 finalRes['date'] = dt.datetime.now().date()
 finalRes['date'] = pd.to_datetime(finalRes['date'])
 
