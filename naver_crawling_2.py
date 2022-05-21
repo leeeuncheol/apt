@@ -17,6 +17,7 @@ res = pd.DataFrame()
 #단지 LIST
 aptArray = ['16248','105026','132862','6053','111348']
 
+#변경사항? 
 
 for i in range(0, len(aptArray)):
 
