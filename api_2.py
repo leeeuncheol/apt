@@ -5,6 +5,8 @@ import os
 import xml.etree.ElementTree as ET
 from sqlalchemy import create_engine
 import pymysql
+import random
+import string
 
 #API 호출에 법정동코드 앞 5자리가 필요
 code_file = "법정동코드 전체자료.txt"
@@ -28,7 +30,7 @@ gu_code_list = subset_df['substr'][1:].reset_index(drop = True)
 
 #추출 하고자하는 기간 설정
 year = [str("%02d" %(y)) for y in range(2022, 2023)]
-month = [str("%02d" %(m)) for m in range(5, 6)]
+month = [str("%02d" %(m)) for m in range(1, 6)]
 base_date_list = ["%s%s" %(y, m) for y in year for m in month ]
 
 
@@ -89,6 +91,7 @@ items['월'] = pd.to_numeric(items['월'])
 items['일'] = pd.to_numeric(items['일'])
 items['층'] = pd.to_numeric(items['층'])
 items['건축년도'] = pd.to_numeric(items['건축년도'])
+items['등록일자'] = pd.datetime.now().date()
 
 
 items['지역코드'] = items['지역코드'] + '00000'
@@ -109,13 +112,97 @@ print(items.head())
 #DB 저장 
 # MySQL Connector using pymysql
 
+
 pymysql.install_as_MySQLdb()
 
 engine = create_engine('mysql+mysqlconnector://crawl_user:test001@localhost:3306/crawl_data', encoding='utf-8')
 conn = engine.connect()
 
-items.to_sql(name='apt2', con=engine, if_exists='append', index = False)
 
+
+"""
+def table_column_names(table: str) -> str:
+ 
+    query = f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table}'"
+    rows = engine.execute(query)
+    dirty_names = [i[0] for i in rows]
+    clean_names = '`' + '`, `'.join(map(str, dirty_names)) + '`'
+    return clean_names
+
+
+
+def insert_conflict_ignore(df: pd.DataFrame, table: str, index: bool):
+    
+    # generate random table name for concurrent writing
+    temp_table = ''.join(random.choice(string.ascii_letters) for i in range(10))
+    try:
+        df.to_sql(temp_table, engine, index=index)
+        columns = table_column_names(table=temp_table)
+        insert_query = f'INSERT IGNORE INTO {table}({columns}) SELECT {columns} FROM `{temp_table}`'
+        engine.execute(insert_query)
+    except Exception as e:
+        print(e)        
+
+    # drop temp table
+    drop_query = f'DROP TABLE IF EXISTS `{temp_table}`'
+    engine.execute(drop_query)
+
+
+def save_dataframe(df: pd.DataFrame, table: str):
+   
+    if df.index.name is None:
+        save_index = False
+    else:
+        # save_index = True
+        save_index = False
+
+    insert_conflict_ignore(df=df, table=table, index=save_index)
+
+
+save_dataframe(items, 'apt2')
+"""
+
+# DB에 중복되면 안되는 열들을 제외하고 새로 추가해야 할 Data들만 업데이트하기
+# df: 새로 업데이트 할 Pandas DataFrame
+# tablename: SQL의 테이블명
+# engine: SQL connector
+# dup_cols: 중복 여부를 결정할 key columns
+# filter_continuous_col: where문으로 제어할 continuous columns
+# filter_categorical_col: where문으로 제어할 categorical columns
+def filter_new_df(df, tablename, engine, dup_cols=[],
+                         filter_continuous_col=None, filter_categorical_col=None):
+    args = 'SELECT %s FROM %s' %(', '.join(['{0}'.format(col) for col in dup_cols]), tablename)
+    print(args)
+    args_contin_filter, args_cat_filter = None, None
+    if filter_continuous_col is not None:
+        if df[filter_continuous_col].dtype == 'datetime64[ns]':
+            args_contin_filter = """ "%s" BETWEEN Convert(datetime, '%s')
+                                          AND Convert(datetime, '%s')""" %(filter_continuous_col,
+                              df[filter_continuous_col].min(), df[filter_continuous_col].max())
+
+
+    if filter_categorical_col is not None:
+        args_cat_filter = ' "%s" in(%s)' %(filter_categorical_col,
+                          ', '.join(["'{0}'".format(value) for value in df[filter_categorical_col].unique()]))
+
+    if args_contin_filter and args_cat_filter:
+        args += ' Where ' + args_contin_filter + ' AND' + args_cat_filter
+    elif args_contin_filter:
+        args += ' Where ' + args_contin_filter
+    elif args_cat_filter:
+        args += ' Where ' + args_cat_filter
+
+    print(pd.read_sql(args, engine))
+    
+        
+    df.drop_duplicates(dup_cols, keep='last', inplace=True)
+    df = pd.merge(df, pd.read_sql(args, engine), how='left', on=dup_cols, indicator=True)
+    df = df[df['_merge'] == 'left_only']
+    df.drop(['_merge'], axis=1, inplace=True)
+    return df
+
+cols = ['거래금액','아파트','층','월','일']
+newitems = filter_new_df(items, 'apt2', engine, cols, None, None)
+
+newitems.to_sql(name='apt2', con=engine, if_exists='append', index = False)
 conn.close()
-
-
