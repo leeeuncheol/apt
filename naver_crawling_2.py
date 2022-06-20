@@ -7,6 +7,8 @@ from sqlalchemy import create_engine
 import pymysql
 import os
 import webbrowser
+from fake_useragent import UserAgent
+import time
 res = pd.DataFrame()
 
 #송정 
@@ -27,7 +29,7 @@ res = pd.DataFrame()
 #센트리지 : 135601
 
 #서부동 자이1 : 131665
-#서부동 자이1 : 131666
+#서부동 자이2 : 131666
 #힐스이스턴베이 : 106557
 #빅쓰리
 
@@ -36,11 +38,17 @@ res = pd.DataFrame()
 
 
 #단지 LIST
-# aptArray = ['16248','105026','132862','6053', '111347', '111348','106557','12053','102949','110132','131665','131666','135601','12007', '104796', '104797']
-aptArray = ['132862']
+aptArray = ['16248','105026','132862','6053', '111347', '111348','106557','12053','102949','110132','131665','131666','135601','12007', '104796', '104797']
+# aptArray = ['131666','135601','12007', '104796', '104797']
 
+
+blocked = False
+ua = UserAgent()
 
 for i in range(0, len(aptArray)):
+    
+    if blocked :
+        break
 
     # 네이버 한페이지에 20개 밖에 로드 안시킴. 넉넉히 20페이지 까지 탐색하고 결과값 없으면 break
     for j in range(1, 20):
@@ -48,8 +56,10 @@ for i in range(0, len(aptArray)):
         url = f"https://m.land.naver.com/complex/getComplexArticleList?hscpNo={aptArray[i]}&cortarNo=3120012000&tradTpCd=A1%3AB1%3AB2&order=point_&showR0=N&page={j}"
 
         payload={}
-        headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.151 Whale/3.14.134.62 Safari/537.36'}
+        # headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.151 Whale/3.14.134.62 Safari/537.36'}
+        headers = {'User-Agent': ua.random,}
         response = requests.request("GET", url, headers=headers, data=payload)
+        time.sleep(3)
 
         # print(response.text)
 
@@ -58,6 +68,7 @@ for i in range(0, len(aptArray)):
         except : 
             url = "https://m.land.naver.com/index"
             webbrowser.open(url)
+            blocked = True
             break
         
         # print(data)
@@ -122,7 +133,7 @@ finalRes['prcInfo'] = finalRes['prcInfo'].str.replace(',','').apply(lambda x : p
 
 
 print(finalRes)
-print(finalRes.info())
+# print(finalRes.info())
 
 #CSV파일 저장
 # finalRes.to_csv(os.path.join("check.csv"), index=False,encoding="euc-kr") 

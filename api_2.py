@@ -33,8 +33,8 @@ gu_code_list = subset_df['substr'][1:].reset_index(drop = True)
 
 
 #추출 하고자하는 기간 설정
-year = [str("%02d" %(y)) for y in range(2010, 2023)]
-month = [str("%02d" %(m)) for m in range(1, 13)]
+year = [str("%02d" %(y)) for y in range(2022, 2023)]
+month = [str("%02d" %(m)) for m in range(4, 7)]
 base_date_list = ["%s%s" %(y, m) for y in year for m in month ]
 
 
@@ -104,9 +104,9 @@ gu_name_dict = gu_code_name.set_index('code').T.to_dict('index')['name']
 items = items.replace({'지역코드' : gu_name_dict })
 
 #data check
-print('***********************QUERY DATA************************')
-print(items.head())
-print('*********************************************************')
+# print('***********************QUERY DATA************************')
+# print(items.head())
+# print('*********************************************************')
 
 
 #CSV파일 저장
@@ -125,7 +125,7 @@ def filter_new_df(df, tablename, engine, dup_cols=[],
                          filter_continuous_col=None, filter_categorical_col=None):
     
     args = 'SELECT %s FROM %s' %(', '.join(['{0}'.format(col) for col in dup_cols]), tablename)
-    print(args)
+    # print(args)
     args_contin_filter, args_cat_filter = None, None
     
     if filter_continuous_col is not None:
@@ -149,17 +149,17 @@ def filter_new_df(df, tablename, engine, dup_cols=[],
 
     currentDB = pd.read_sql(args, engine)
     currentDB['전용면적'] = round(pd.to_numeric(currentDB['전용면적']), 2)
-    print('***********************EXIST DATA***********************')
-    print(currentDB.head())
-    print('*********************************************************')
+    # print('***********************EXIST DATA***********************')
+    # print(currentDB.head())
+    # print('*********************************************************')
     df.drop_duplicates(dup_cols, keep='last', inplace=True)
     df = pd.merge(df, currentDB, how='left', on=dup_cols, indicator=True)
     df = df[df['_merge'] == 'left_only']
     df.drop(['_merge'], axis=1, inplace=True)
-    
-    """
+ 
+  
     # 신고가 컬럼 기본값 설정
-    # df['신고가'] = 'X'
+    df['신고가'] = ''
     
     # 기존 최고가 
     oridf = pd.read_sql(args, engine)
@@ -175,7 +175,7 @@ def filter_new_df(df, tablename, engine, dup_cols=[],
                 print('전고가 없음 :', df['아파트'][i], df['전용면적'][i])
                 existMax = 0
             
-            print('기존:', existMax, '/ 신규:' , df['거래금액'][i].item())
+            print(df['아파트'][i], df['전용면적'][i], '기존:', existMax, '/ 신규:' , df['거래금액'][i].item())
             
             if df['거래금액'][i].item() > existMax : 
                 # df['신고가'][i] = 'O'
@@ -184,11 +184,11 @@ def filter_new_df(df, tablename, engine, dup_cols=[],
     AllTradeCount =  len(df.index)                                
     isHigh = df['신고가'] == 'O'
     HighTradeCount =  len(df[isHigh].index)           
-    print('***********************') 
+    print('*********************************************************') 
     print('울산 전체 신고가율:', round(HighTradeCount / AllTradeCount * 100, 2), '%')
-    print( '신고가건수:',  HighTradeCount , '전체거래건수: ' , AllTradeCount )
-    print('***********************')     
-    """
+    print( '신고가건수:',  HighTradeCount , '전체등록건수: ' , AllTradeCount )
+    print('*********************************************************')     
+
     return df
 
 
@@ -200,9 +200,9 @@ conn = engine.connect()
 #중복제거 함수 적용
 cols = ['거래금액','아파트','층','월','일','전용면적']
 newitems = filter_new_df(items, 'apt2', engine, cols, None, None)
-print('***********************UPDATE DATA************************')
-print(newitems)
-print('**********************************************************')
+# print('***********************UPDATE DATA************************')
+# print(newitems)
+# print('**********************************************************')
 
 # CSV 파일 생성
 # newitems.to_csv('c:/temp/test.csv', index=False)
