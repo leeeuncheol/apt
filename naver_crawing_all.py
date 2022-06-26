@@ -13,12 +13,18 @@ import webbrowser
 from bs4 import BeautifulSoup
 import re 
 from fake_useragent import UserAgent
+import time
+import datetime
 ua = UserAgent(use_cache_server=True)
+res = pd.DataFrame()
 
 
 codi = pd.read_csv('cord.csv', index_col='area', dtype=object)
+a = 0 
 
 for index in codi.index:
+    
+    start = time.time()
     
     keyword = index
     print(keyword)
@@ -36,7 +42,7 @@ for index in codi.index:
     
 
     # 네이버 한페이지에 20개 밖에 로드 안시킴. 넉넉히 300페이지 까지 탐색하고 결과값 없으면 break
-    for j in range(1, 300):
+    for j in range(1, 9999):
 
         # 지역명으로 lat, long ,z 정보 뽑아서 url 구성 할 것
 
@@ -65,22 +71,33 @@ for index in codi.index:
         df = pd.DataFrame.from_dict(items)
         # print(df[['spc2','hanPrc']])
 
-        # 호출되는 모든 apt별 page concat 
-        if  keyword == '울산시 남구':
-            if j == 1:
-                res = df
-        else :
-           res = pd.concat([res,df], ignore_index=True)
-
-        # print(f'{i} - {j} - {len(df)}')
-
         # page호출 결과 없으면 for문 중단
         if len(df) == 0 : 
             break
         
-        break
-    
-    
+        df['시'] = keyword.split(' ')[0]
+        df['구'] = keyword.split(' ')[1]
+        df['동'] = keyword.split(' ')[2]        
+        
+       
+        # 호출되는 모든 apt별 page concat 
+        if  len(res) == 0:
+            if j == 1:
+                res = df
+        else :
+               res = pd.concat([res,df], ignore_index=True)
+        
+        
+               
+
+        
+    end = time.time()
+    sec = (end - start)
+    runtime = str(datetime.timedelta(seconds=sec)).split(".")[0]
+    print(runtime, '//', len(res) - a)
+    a = len(res)
+        
+ 
     
 
 
@@ -88,7 +105,7 @@ for index in codi.index:
 #필요한 Column만 골라 씀
 # sortRes = res[['atclNm','bildNm', 'flrInfo', 'spc2','tradTpNm', 'hanPrc']].sort_values(by=['hanPrc'],ascending=False)
 # print(res.info())
-res = pd.DataFrame(res[['atclNm','bildNm', 'flrInfo', 'spc2','tradTpNm', 'prc', 'rentPrc', 'hanPrc','direction', 'atclNo','atclFetrDesc','atclCfmYmd']])
+res = pd.DataFrame(res[['atclNm','bildNm', 'flrInfo', 'spc2','tradTpNm', 'prc', 'rentPrc', 'hanPrc','direction', 'atclNo','atclFetrDesc','atclCfmYmd','시','구','동']])
 res['date'] = dt.datetime.now().date()
 res['date'] = pd.to_datetime(res['date'])
 #POWER BI에서 처리

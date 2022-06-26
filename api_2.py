@@ -10,7 +10,11 @@ import pymysql
 import decimal
 import random
 import string
+import time
+import datetime
 from datetime import date
+
+start = time.time()
 
 #API 호출에 법정동코드 앞 5자리가 필요
 code_file = "법정동코드 전체자료.txt"
@@ -203,6 +207,11 @@ newitems = filter_new_df(items, 'apt2', engine, cols, None, None)
 # print('***********************UPDATE DATA************************')
 # print(newitems)
 # print('**********************************************************')
+
+end = time.time()
+sec = (end - start)
+runtime = str(datetime.timedelta(seconds=sec)).split(".")[0]
+print(runtime)
 
 # CSV 파일 생성
 # newitems.to_csv('c:/temp/test.csv', index=False)

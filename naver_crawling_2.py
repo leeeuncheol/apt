@@ -9,6 +9,8 @@ import os
 import webbrowser
 from fake_useragent import UserAgent
 import time
+import math
+import datetime
 res = pd.DataFrame()
 
 #송정 
@@ -35,7 +37,7 @@ res = pd.DataFrame()
 
 #미장아이파크2 : 110132
 
-
+start = time.time()
 
 #단지 LIST
 aptArray = ['16248','105026','132862','6053', '111347', '111348','106557','12053','102949','110132','131665','131666','135601','12007', '104796', '104797']
@@ -131,8 +133,13 @@ def priceRe(x) :
 
 finalRes['prcInfo'] = finalRes['prcInfo'].str.replace(',','').apply(lambda x : priceRe(x))
 
+end = time.time()
+sec = (end - start)
+runtime = str(datetime.timedelta(seconds=sec)).split(".")[0]
 
 print(finalRes)
+
+print(runtime)
 # print(finalRes.info())
 
 #CSV파일 저장
