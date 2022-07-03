@@ -27,7 +27,8 @@ code = code [code['is_exist'] == '존재']
 code['code'] = code['code'].apply(str) 
 code['substr'] = code['code'].str[:5]
 #지역 필터
-filter = code['name'].str.contains("울산광역시") 
+keyword = "울산광역시"
+filter = code['name'].str.contains(keyword) 
 subset_df = code[filter]
 ## 중복제거
 subset_df = subset_df.drop_duplicates(['substr'])
@@ -176,22 +177,28 @@ def filter_new_df(df, tablename, engine, dup_cols=[],
                 condition2 =  maxoridf['전용면적'] == df['전용면적'][i]
                 existMax = maxoridf.loc[condition1 & condition2]['최고가'].item()
             except : 
-                print('전고가 없음 :', df['아파트'][i], df['전용면적'][i])
+                # print('전고가 없음 :', df['아파트'][i], df['전용면적'][i])
                 existMax = 0
             
-            print(df['아파트'][i], df['전용면적'][i], '기존:', existMax, '/ 신규:' , df['거래금액'][i].item())
+            
             
             if df['거래금액'][i].item() > existMax : 
                 # df['신고가'][i] = 'O'
                 df.at[i, '신고가'] = 'O'
+                
+                print(df['아파트'][i], df['전용면적'][i], '기존:', existMax, '/ 신규:' , df['거래금액'][i].item(), ' / 신고가:', df['신고가'][i])
+            else : 
+                print(df['아파트'][i], df['전용면적'][i], '기존:', existMax, '/ 신규:' , df['거래금액'][i].item())
     
-    AllTradeCount =  len(df.index)                                
-    isHigh = df['신고가'] == 'O'
-    HighTradeCount =  len(df[isHigh].index)           
-    print('*********************************************************') 
-    print('울산 전체 신고가율:', round(HighTradeCount / AllTradeCount * 100, 2), '%')
-    print( '신고가건수:',  HighTradeCount , '전체등록건수: ' , AllTradeCount )
-    print('*********************************************************')     
+    AllTradeCount =  len(df.index)    
+    if AllTradeCount != 0 : 
+        isHigh = df['신고가'] == 'O'
+        HighTradeCount =  len(df[isHigh].index)           
+        print('*********************************************************') 
+        print(keyword, ' 전체 신고가율:', round(HighTradeCount / AllTradeCount * 100, 2), '%')
+        print( '신고가건수:',  HighTradeCount , '전체등록건수: ' , AllTradeCount )
+        print('*********************************************************')    
+     
 
     return df
 
