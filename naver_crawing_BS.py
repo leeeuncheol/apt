@@ -117,6 +117,6 @@ print(subset_code)
 subset_code.set_index('name',drop=True,inplace=True)
 
 #CSV파일 저장
-subset_code.to_csv(os.path.join("check_무안.csv"), index=True,encoding="euc-kr") 
+subset_code.to_csv(os.path.join("check_무안.csv"), index=True,encoding="utf-8") 
     
  

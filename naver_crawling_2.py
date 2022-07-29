@@ -61,7 +61,7 @@ for i in range(0, len(aptArray)):
         # headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.151 Whale/3.14.134.62 Safari/537.36'}
         headers = {'User-Agent': ua.random,}
         response = requests.request("GET", url, headers=headers, data=payload)
-        time.sleep(2)
+        time.sleep(3)
 
         # print(response.text)
 
@@ -143,7 +143,7 @@ print(runtime)
 # print(finalRes.info())
 
 #CSV파일 저장
-# finalRes.to_csv(os.path.join("check.csv"), index=False,encoding="euc-kr") 
+# finalRes.to_csv(os.path.join("check.csv"), index=False,encoding="utf-8") 
 
 
 #DB 저장 (MySQL Connector using pymysql)

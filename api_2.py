@@ -39,7 +39,7 @@ gu_code_list = subset_df['substr'][1:].reset_index(drop = True)
 
 #추출 하고자하는 기간 설정
 year = [str("%02d" %(y)) for y in range(2022, 2023)]
-month = [str("%02d" %(m)) for m in range(4, 7)]
+month = [str("%02d" %(m)) for m in range(5, 8)]
 base_date_list = ["%s%s" %(y, m) for y in year for m in month ]
 
 
@@ -179,16 +179,14 @@ def filter_new_df(df, tablename, engine, dup_cols=[],
             except : 
                 # print('전고가 없음 :', df['아파트'][i], df['전용면적'][i])
                 existMax = 0
-            
-            
+                        
             
             if df['거래금액'][i].item() > existMax : 
                 # df['신고가'][i] = 'O'
                 df.at[i, '신고가'] = 'O'
-                
-                print(df['아파트'][i], df['전용면적'][i], '기존:', existMax, '/ 신규:' , df['거래금액'][i].item(), ' / 신고가:', df['신고가'][i])
+                print(df['지역코드'][i], df['아파트'][i], '/' ,df['전용면적'][i], '/ 기존:', existMax, '/ 신규:' , df['거래금액'][i].item(), ' / 신고가:', df['신고가'][i])
             else : 
-                print(df['아파트'][i], df['전용면적'][i], '기존:', existMax, '/ 신규:' , df['거래금액'][i].item())
+                print(df['지역코드'][i], df['아파트'][i], '/' ,df['전용면적'][i], '/ 기존:', existMax, '/ 신규:' , df['거래금액'][i].item())
     
     AllTradeCount =  len(df.index)    
     if AllTradeCount != 0 : 

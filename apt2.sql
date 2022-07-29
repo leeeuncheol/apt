@@ -1,28 +1,31 @@
--- use crawl_data;
--- CREATE TABLE apt2 (
---  idx        INT NOT NULL AUTO_INCREMENT,
---  거래금액     int,
---  거래유형    VARCHAR(20),
---  건축년도   int,
---  년    int,  
---  법정동  VARCHAR(20),
---  아파트 VARCHAR(100),
---  월    int,
---  일     int,
---  전용면적    decimal,
---  중개사소재지    VARCHAR(20),
---  지번    VARCHAR(20),
---  지역코드    VARCHAR(20),
---  층    int,
---  해제사유발생일    VARCHAR(20),
---  해제여부    VARCHAR(20),
---  거래금액범위    VARCHAR(20),
---  시    VARCHAR(20),
---  구    VARCHAR(20),
---   PRIMARY KEY(idx)
--- ) ;
+ use crawl_data;
+ CREATE TABLE apt2_Rent (
+  idx        INT NOT NULL AUTO_INCREMENT,
+  갱신요구권사용     VARCHAR(20),
+  건축년도   int,
+  계약구분   VARCHAR(20),
+  계약기간   VARCHAR(50),  
+  년    int,  
+  법정동  VARCHAR(20),
+  보증금액  int,
+  아파트 VARCHAR(100),
+  월    int,
+  월세금액 int,
+  일     int,
+  전용면적    decimal,
+  종전계약보증금    VARCHAR(50),
+  종전계약월세    VARCHAR(50),
+  지번    VARCHAR(20),
+  지역코드    VARCHAR(20),
+  층    int,
+  시    VARCHAR(20),
+  구    VARCHAR(20),
+  거래금액범위    VARCHAR(20),
+  등록일자    VARCHAR(20),
+   PRIMARY KEY(idx)
+ ) ;
 
-select * from apt2;
+-- select * from apt2;
 
 
 update crawl_data.apt2 
@@ -44,17 +47,21 @@ set 거래금액범위 =
         when (거래금액 between 130000 and 139999) then '13억 이상 14억 미만'
         when (거래금액 between 140000 and 149999) then '14억 이상 15억 미만'
         when (거래금액 between 150000 and 159999) then '15억 이상 16억 미만'
-        else 'N/A'
+        else '16억 이상'
 	END
 where 거래금액범위 is null ;   
 
 
 update crawl_data.apt2 
-	set 시 = substring_index(지역코드, ' ', 1);
+	set 시 = substring_index(지역코드, ' ', 1)
+    where 시 is null ; 
     
 update crawl_data.apt2 
-	set 구 = substring_index(지역코드, ' ', -1);
+	set 구 = substring_index(지역코드, ' ', -1)
+    where 구 is null ; 
 
+
+select 월, 일, 시, 구, 법정동, 아파트, 전용면적, 거래금액 , 신고가, 등록일자 FROM crawl_data.apt2;
 
 
 

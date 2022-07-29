@@ -28,7 +28,7 @@ code = code [code['is_exist'] == '존재']
 code['code'] = code['code'].apply(str) 
 code['substr'] = code['code'].str[:5]
 #지역 필터
-keyword = "울산광역시"
+keyword = "부산광역시 사하구"
 filter = code['name'].str.contains(keyword) 
 subset_df = code[filter]
 ## 중복제거
@@ -93,6 +93,8 @@ for base_date in base_date_list:
 ## dataframe 생성
 items = pd.DataFrame(items_list) 
 
+print(items)
+
 ## data type 변경
 items['보증금액'] = pd.to_numeric(items['보증금액'].str.replace(',',''))
 items['월세금액'] = pd.to_numeric(items['월세금액'].str.replace(',',''))
@@ -111,11 +113,11 @@ gu_name_dict = gu_code_name.set_index('code').T.to_dict('index')['name']
 items = items.replace({'지역코드' : gu_name_dict })
 
 #data check
-print('***********************QUERY DATA************************')
-print(items)
-print('*********************************************************')
+# print('***********************QUERY DATA************************')
+# print(items)
+# print('*********************************************************')
 # print(items.info())
-print('*********************************************************')
+# print('*********************************************************')
 
 
 #CSV파일 저장
@@ -174,7 +176,7 @@ def filter_new_df(df, tablename, engine, dup_cols=[],
     oridf = pd.read_sql(args, engine)
     maxoridf = oridf.groupby(['아파트','전용면적'])['보증금액'].agg(**{'최고가':'max'}).reset_index()
     # print('***********************MAX DATA***********************')
-    print(maxoridf)
+    # print(maxoridf)
     # print('*********************************************************')
     
     for i in df.index : 
@@ -182,18 +184,22 @@ def filter_new_df(df, tablename, engine, dup_cols=[],
                 condition1 = maxoridf['아파트'] == df['아파트'][i] 
                 condition2 =  maxoridf['전용면적'] == df['전용면적'][i]
                 existMax = maxoridf.loc[condition1 & condition2]['최고가'].item()
+                
+                if df['보증금액'][i].item() > existMax:
+                    if df['월세금액'][i].item() == 0: 
+                        print(df['보증금액'][i].item(), existMax)
+                        df.at[i, '신고가'] = 'O'
+                        print()
+                        print(df['지역코드'][i], df['아파트'][i], df['전용면적'][i], '/ 기존:', existMax, '/ 신규:' , df['보증금액'][i].item(), ' / 신고가:', df['신고가'][i])
+                        print()
+                else : 
+                    print(df['지역코드'][i], df['아파트'][i], df['전용면적'][i], '/ 기존:', existMax, '/ 신규:' , df['보증금액'][i].item())
+                
             except : 
-                # print('전고가 없음 :', df['아파트'][i], df['전용면적'][i])
+                print('전고가 없음 :', df['아파트'][i], df['전용면적'][i])
                 existMax = 0
                         
             
-            if df['보증금액'][i].item() > existMax  & df['월세금액'] != 0: 
-                # df['신고가'][i] = 'O'
-                df.at[i, '신고가'] = 'O'
-                
-                print(df['지역코드'][i], df['아파트'][i], df['전용면적'][i], '기존:', existMax, '/ 신규:' , df['보증금액'][i].item(), ' / 신고가:', df['신고가'][i])
-            else : 
-                print(df['지역코드'][i], df['아파트'][i], df['전용면적'][i], '기존:', existMax, '/ 신규:' , df['보증금액'][i].item())
     
     AllTradeCount =  len(df.index)    
     if AllTradeCount != 0 : 
@@ -215,11 +221,11 @@ conn = engine.connect()
 
 #중복제거 함수 적용
 cols = ['보증금액','아파트','층','월','일','전용면적']
-newitems = filter_new_df(items, 'apt2_rent', engine, cols, None, None)
+# newitems = filter_new_df(items, 'apt2_rent', engine, cols, None, None)
 
-print('***********************UPDATE DATA************************')
-print(newitems)
-print('**********************************************************')
+# print('***********************UPDATE DATA************************')
+# print(newitems)
+# print('**********************************************************')
 
 end = time.time()
 sec = (end - start)
@@ -230,5 +236,5 @@ print(runtime)
 # newitems.to_csv('c:/temp/test.csv', index=False)
 
 #DB 저장 
-newitems.to_sql(name='apt2_rent', con=engine, if_exists='append', index = False)
+items.to_sql(name='apt2_rent', con=engine, if_exists='append', index = False)
 conn.close()

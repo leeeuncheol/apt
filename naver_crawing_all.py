@@ -19,7 +19,7 @@ ua = UserAgent(use_cache_server=True)
 res = pd.DataFrame()
 
 
-codi = pd.read_csv('cord.csv', index_col='name', dtype=object)
+codi = pd.read_csv('cord_울산전체.csv', index_col='name', dtype=object)
 a = 0 
 
 start_total = time.time()
@@ -53,12 +53,14 @@ for index in codi.index:
 
         # url = f"https://m.land.naver.com/cluster/ajax/articleList?rletTpCd=APT&tradTpCd=A1%3AB1%3AB2&z=12&lat=35.5151389&lon=129.2650553&btm=35.3908266&lft=129.048247&top=35.639259&rgt=129.4818636&showR0=&totCnt=5032&cortarNo=3114000000&page={j}"
         # url = f"https://m.land.naver.com/cluster/ajax/articleList?rletTpCd=APT&tradTpCd=A1%3AB1%3AB2&z={z}&lat={lat}&lon={lon}&btm={btm}&lft={lft}&top={top}&rgt={rgt}&showR0=&cortarNo={cortarNo}&page={j}"
-        url = f"https://m.land.naver.com/cluster/ajax/articleList?rletTpCd=APT&tradTpCd=A1%3AB1%3AB2&z={z}&lat={lat}&lon={lon}&cortarNo={cortarNo}&page={j}"
+        # url = f"https://m.land.naver.com/cluster/ajax/articleList?rletTpCd=APT&tradTpCd=A1%3AB1%3AB2&z={z}&lat={lat}&lon={lon}&cortarNo={cortarNo}&page={j}"
+        
+        url = f"https://m.land.naver.com/cluster/ajax/articleList?rletTpCd=APT%3AABYG&tradTpCd=A1%3AB1%3AB2&z={z}&lat={lat}&lon={lon}&cortarNo={cortarNo}&page={j}"
         # headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.151 Whale/3.14.134.62 Safari/537.36'}
         headers = {'User-Agent': ua.random,}
 
         response = requests.request("GET", url, headers=headers)
-        time.sleep(2)
+        time.sleep(3)
 
         # print(response.text)
 
@@ -80,9 +82,17 @@ for index in codi.index:
         if len(df) == 0 : 
             break
         
-        df['지역1'] = keyword.split(' ')[0]
-        df['지역2'] = keyword.split(' ')[1]
-        df['지역3'] = keyword.split(' ')[2]        
+        df['지역1'] = ''
+        df['지역2'] = ''
+        df['지역3'] = '' 
+        
+        try:
+            df['지역1'] = keyword.split(' ')[0]
+            df['지역2'] = keyword.split(' ')[1]
+            df['지역3'] = keyword.split(' ')[2]     
+        except : 
+            print()
+               
         # df['지역'] = keyword 
        
         # 호출되는 모든 apt별 page concat 
@@ -115,7 +125,7 @@ res['date'] = pd.to_datetime(res['date'])
 print(res)
 
 #CSV파일 저장
-# finalRes.to_csv(os.path.join("NaverList.csv"), index=False,encoding="euc-kr") 
+res.to_csv(os.path.join("NaverList.csv"), index=False,encoding="utf-8") 
 
 
 #DB 저장 (MySQL Connector using pymysql)
