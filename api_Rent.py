@@ -28,7 +28,7 @@ code = code [code['is_exist'] == '존재']
 code['code'] = code['code'].apply(str) 
 code['substr'] = code['code'].str[:5]
 #지역 필터
-keyword = "부산광역시 사하구"
+keyword = "울산광역시"
 filter = code['name'].str.contains(keyword) 
 subset_df = code[filter]
 ## 중복제거
@@ -221,7 +221,7 @@ conn = engine.connect()
 
 #중복제거 함수 적용
 cols = ['보증금액','아파트','층','월','일','전용면적']
-# newitems = filter_new_df(items, 'apt2_rent', engine, cols, None, None)
+newitems = filter_new_df(items, 'apt2_rent', engine, cols, None, None)
 
 # print('***********************UPDATE DATA************************')
 # print(newitems)
@@ -236,5 +236,5 @@ print(runtime)
 # newitems.to_csv('c:/temp/test.csv', index=False)
 
 #DB 저장 
-items.to_sql(name='apt2_rent', con=engine, if_exists='append', index = False)
+newitems.to_sql(name='apt2_rent', con=engine, if_exists='append', index = False)
 conn.close()

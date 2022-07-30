@@ -20,36 +20,49 @@
   층    int,
   시    VARCHAR(20),
   구    VARCHAR(20),
-  거래금액범위    VARCHAR(20),
+  보증금액범위    VARCHAR(20),
   등록일자    VARCHAR(20),
    PRIMARY KEY(idx)
  ) ;
+ 
+ SELECT 보증금액, 아파트, 층, 월, 일, 전용면적, COUNT(*) as cnt 
+FROM crawl_data.apt2_rent 
+GROUP BY 보증금액, 아파트, 층, 월, 일 
+HAVING COUNT(보증금액) > 1  and  COUNT(아파트) > 1 and  COUNT(층) > 1 and   COUNT(월) > 1 and COUNT(일) > 1;
+
+DELETE
+FROM crawl_data.apt2_rent 
+WHERE idx IN 
+(
+    SELECT idx FROM (SELECT idx FROM  crawl_data.apt2_rent GROUP BY 보증금액, 아파트, 층, 월, 일 HAVING count(*) > 1) temp_table
+) ;
 
 -- select * from apt2;
-
+delete from crawl_data.apt2_rent  WHERE 등록일자 = '2022-7-28';
+select * from crawl_data.apt2_rent  WHERE 등록일자 = '2022-7-28' and 거래금액범위 = '2억 이상 3억 미만';
 
 update crawl_data.apt2_rent 
 set 거래금액범위 = 
 	 case 
-		when (거래금액 between 0 and 9999) then '1억 미만'
-        when (거래금액 between 10000 and 19999) then '1억 이상 2억 미만'
-        when (거래금액 between 20000 and 29999) then '2억 이상 3억 미만'
-        when (거래금액 between 30000 and 39999) then '3억 이상 4억 미만'
-        when (거래금액 between 40000 and 49999) then '4억 이상 5억 미만'
-        when (거래금액 between 50000 and 59999) then '5억 이상 6억 미만'
-        when (거래금액 between 60000 and 69999) then '6억 이상 7억 미만'
-        when (거래금액 between 70000 and 79999) then '7억 이상 8억 미만'
-        when (거래금액 between 80000 and 89999) then '8억 이상 9억 미만'
-        when (거래금액 between 90000 and 99999) then '9억 이상 10억 미만'
-        when (거래금액 between 100000 and 109999) then '10억 이상 11억 미만'
-        when (거래금액 between 110000 and 119999) then '11억 이상 12억 미만'
-        when (거래금액 between 120000 and 129999) then '12억 이상 13억 미만'
-        when (거래금액 between 130000 and 139999) then '13억 이상 14억 미만'
-        when (거래금액 between 140000 and 149999) then '14억 이상 15억 미만'
-        when (거래금액 between 150000 and 159999) then '15억 이상 16억 미만'
+		when (보증금액 between 0 and 9999) then '1억 미만'
+        when (보증금액 between 10000 and 19999) then '1억 이상 2억 미만'
+        when (보증금액 between 20000 and 29999) then '2억 이상 3억 미만'
+        when (보증금액 between 30000 and 39999) then '3억 이상 4억 미만'
+        when (보증금액 between 40000 and 49999) then '4억 이상 5억 미만'
+        when (보증금액 between 50000 and 59999) then '5억 이상 6억 미만'
+        when (보증금액 between 60000 and 69999) then '6억 이상 7억 미만'
+        when (보증금액 between 70000 and 79999) then '7억 이상 8억 미만'
+        when (보증금액 between 80000 and 89999) then '8억 이상 9억 미만'
+        when (보증금액 between 90000 and 99999) then '9억 이상 10억 미만'
+        when (보증금액 between 100000 and 109999) then '10억 이상 11억 미만'
+        when (보증금액 between 110000 and 119999) then '11억 이상 12억 미만'
+        when (보증금액 between 120000 and 129999) then '12억 이상 13억 미만'
+        when (보증금액 between 130000 and 139999) then '13억 이상 14억 미만'
+        when (보증금액 between 140000 and 149999) then '14억 이상 15억 미만'
+        when (보증금액 between 150000 and 159999) then '15억 이상 16억 미만'
         else '16억 이상'
 	END
-where 거래금액범위 is null ;   
+where 거래금액범위 is null and 월세금액 = 0;   
 
 
 update crawl_data.apt2_rent 
@@ -66,4 +79,6 @@ select 월, 일, 시, 구, 법정동, 아파트, 전용면적, 보증금액, 월
 
 
 select * FROM crawl_data.apt2_rent;
+
+
 

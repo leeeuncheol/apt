@@ -61,7 +61,7 @@ update crawl_data.apt2
     where 구 is null ; 
 
 
-select 월, 일, 시, 구, 법정동, 아파트, 전용면적, 거래금액 , 신고가, 등록일자 FROM crawl_data.apt2;
+select 월, 일, 시, 구, 법정동, 아파트, 전용면적, 거래금액 , 신고가, 등록일자 FROM crawl_data.apt2 order by 등록일자 desc limit 10;
 
 
 
